@@ -3,7 +3,7 @@ getgenv().playerData = game:GetService("Players").LocalPlayer:WaitForChild("Play
 getgenv().ReplicatedStorage = game:GetService("ReplicatedStorage")
 getgenv().RunService = game:GetService("RunService")
 getgenv().MarketplaceService = game:GetService("MarketplaceService")
-getgenv().RemoteEvent = ReplicatedService:WaitForChild("Modules"):WaitForChild("Network"):WaitForChild("RemoteEvent")
+getgenv().RemoteEvent = ReplicatedStorage:WaitForChild("Modules"):WaitForChild("Network"):WaitForChild("RemoteEvent")
 getgenv().TweenService = game:GetService("TweenService")
 getgenv().PlayerGui = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
 local Humanoid, Animator
@@ -12,10 +12,40 @@ getgenv().purchasedEmotesFolder = playerData:WaitForChild("Purchased"):WaitForCh
 getgenv().Remote = ReplicatedStorage:WaitForChild("Modules"):WaitForChild("Network"):WaitForChild("RemoteEvent")
 
 -- ===================================
--- == KHỞI TẠO FLUENT UI ĐÃ FIX ==
+-- == CUSTOM TOGGLE BUTTON (Ý tưởng của bạn) ==
+-- ===================================
+
+local ScreenGui = Instance.new("ScreenGui")
+local ImageButton = Instance.new("ImageButton")
+local UICorner = Instance.new("UICorner")
+
+ScreenGui.Name = "PuriumCustomToggle"
+ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+ImageButton.Parent = ScreenGui
+ImageButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+ImageButton.BorderSizePixel = 0
+ImageButton.Position = UDim2.new(0.10615778, 0, 0.16217947, 0)
+ImageButton.Size = UDim2.new(0, 40, 0, 40)
+ImageButton.Draggable = true
+ImageButton.Image = "rbxassetid://86136114987380" -- Sử dụng rbxassetid cho độ tin cậy
+
+UICorner.CornerRadius = UDim.new(1, 10) 
+UICorner.Parent = ImageButton
+
+-- Nút này mô phỏng phím End để ẩn/hiện GUI Fluent
+ImageButton.MouseButton1Down:Connect(function()
+    game:GetService("VirtualInputManager"):SendKeyEvent(true, Enum.KeyCode.End, false, game)
+end)
+
+
+-- ===================================
+-- == KHỞI TẠO FLUENT UI ==
 -- ===================================
 
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
+repeat task.wait() until game:IsLoaded() -- Đảm bảo game đã load
 
 local Window = Fluent:CreateWindow({
    Title = "Purium Hub | by ngao-gamer",
@@ -26,22 +56,22 @@ local Window = Fluent:CreateWindow({
       FolderName = "Purium",
       FileName = "Purium Hub"
    },
-   MinimizeKey = Enum.KeyCode.End -- Dùng End để ẩn/hiện GUI
+   MinimizeKey = Enum.KeyCode.End -- Fluent sẽ tự động lắng nghe phím End
 })
 
 -- Tạo các Tab với Icon ID CHUẨN của Fluent UI
-local CombatTab = Window:AddTab("Combat", 4483750058) -- Icon: sword
-local GeneratorsTab = Window:AddTab("Generators", 6147690616) -- Icon: gear (hoặc máy móc)
-local ESPTab = Window:AddTab("ESP", 6147690637) -- Icon: eye/scan
-local StaminaSetTab = Window:AddTab("Stamina Settings", 6147690753) -- Icon: feet/run
-local AimbotTab = Window:AddTab("Aimbot", 4483750031) -- Icon: target/crosshair
-local MiscsTab = Window:AddTab("Misc", 6147690554) -- Icon: cogs
-local AntiSlowsTab = Window:AddTab("Anti Slow", 6147690554) -- Icon: cogs
-local AchieveTab = Window:AddTab("Achievements", 6147690614) -- Icon: medal
+local CombatTab = Window:AddTab("Combat", 4483750058) 
+local GeneratorsTab = Window:AddTab("Generators", 6147690616) 
+local ESPTab = Window:AddTab("ESP", 6147690637) 
+local StaminaSetTab = Window:AddTab("Stamina Settings", 6147690753) 
+local AimbotTab = Window:AddTab("Aimbot", 4483750031) 
+local MiscsTab = Window:AddTab("Misc", 6147690554) 
+local AntiSlowsTab = Window:AddTab("Anti Slow", 6147690554) 
+local AchieveTab = Window:AddTab("Achievements", 6147690614) 
 
 
 -- ===================================
--- == LOGIC: AUTO GENERATOR (Đã Fix) ==
+-- == LOGIC: AUTO GENERATOR ==
 -- ===================================
 
 local genEnabled = false
@@ -52,22 +82,8 @@ local lt = 0
 
 GeneratorsTab:AddSection("Auto Generator")
 
-local autoGenToggle = GeneratorsTab:AddToggle("AutoGenToggle", {
-	Title = "Auto Do Generator",
-	Default = genEnabled,
-}):OnChange(function(Value)
-	genEnabled = Value
-end)
-
-local genIntervalSlider = GeneratorsTab:AddSlider("GenIntervalSlider", {
-	Title = "Do Generator Interval (Seconds)",
-	Range = {1, 15},
-	Increment = 0.25,
-	Suffix = "s",
-	Default = genInterval,
-}):OnChange(function(Value)
-	genInterval = Value
-end)
+GeneratorsTab:AddToggle("AutoGenToggle", { Title = "Auto Do Generator", Default = genEnabled, }):OnChange(function(Value) genEnabled = Value end)
+GeneratorsTab:AddSlider("GenIntervalSlider", { Title = "Do Generator Interval (Seconds)", Range = {1, 15}, Increment = 0.25, Suffix = "s", Default = genInterval, }):OnChange(function(Value) genInterval = Value end)
 
 -- Hook RF/RE 
 local Old
@@ -107,7 +123,7 @@ game:GetService("RunService").Stepped:Connect(function()
 end)
 
 -- ===================================
--- == LOGIC & UI: ESP (Định nghĩa đầy đủ Function) ==
+-- == LOGIC & UI: ESP (Đã Fix Function) ==
 -- ===================================
 
 -- Config ESP
@@ -255,7 +271,7 @@ ESTab:AddToggle("ToggleBuilderSubspaceESP", { Title = "Subspace Tripmine ESP", D
 
 
 -- =============================================
--- == LOGIC & UI: AIMBOT (Đã Fix) ==
+-- == LOGIC & UI: AIMBOT ==
 -- =============================================
 
 -- Config Aimbot (Khởi tạo biến Global)
