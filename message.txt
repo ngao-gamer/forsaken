@@ -2,48 +2,46 @@ getgenv().Players = game:GetService("Players")
 getgenv().playerData = game:GetService("Players").LocalPlayer:WaitForChild("PlayerData")
 getgenv().ReplicatedStorage = game:GetService("ReplicatedStorage")
 getgenv().RunService = game:GetService("RunService")
-getgenv().Remote = ReplicatedStorage:WaitForChild("Modules"):WaitForChild("Network"):WaitForChild("RemoteEvent")
 getgenv().MarketplaceService = game:GetService("MarketplaceService")
-getgenv().RemoteEvent = ReplicatedStorage:WaitForChild("Modules"):WaitForChild("Network"):WaitForChild("RemoteEvent")
+getgenv().RemoteEvent = ReplicatedService:WaitForChild("Modules"):WaitForChild("Network"):WaitForChild("RemoteEvent")
 getgenv().TweenService = game:GetService("TweenService")
 getgenv().PlayerGui = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
 local Humanoid, Animator
 getgenv().player = Players.LocalPlayer
 getgenv().purchasedEmotesFolder = playerData:WaitForChild("Purchased"):WaitForChild("Emotes")
+getgenv().Remote = ReplicatedStorage:WaitForChild("Modules"):WaitForChild("Network"):WaitForChild("RemoteEvent")
 
 -- ===================================
--- == KHỞI TẠO SIRIUS/RAYFIELD UI ==
+-- == KHỞI TẠO FLUENT UI ĐÃ FIX ==
 -- ===================================
 
-local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 
-local Window = Rayfield:CreateWindow({
-   Name = "Purium Hub | Đã Sửa Lỗi UI",
-   Icon = 4483750058, -- Icon đã được chỉnh sửa
-   LoadingTitle = "Loading Purium Hub...",
-   LoadingSubtitle = "by ngao-gamer",
-   ShowText = "Purium",
-   Theme = "Default",
-   ToggleUIKeybind = "End", -- Dùng phím End
+local Window = Fluent:CreateWindow({
+   Title = "Purium Hub | by ngao-gamer",
+   ThemeIndex = 3, 
+   AccentColor = "Cyan",
    ConfigurationSaving = {
       Enabled = true,
       FolderName = "Purium",
       FileName = "Purium Hub"
    },
+   MinimizeKey = Enum.KeyCode.End -- Dùng End để ẩn/hiện GUI
 })
 
--- Tạo các Tab
-local CombatTab = Window:CreateTab("Combat", 4483750058) -- Kiếm
-local GeneratorsTab = Window:CreateTab("Generators", 6147690616) -- Bánh răng
-local ESPTab = Window:CreateTab("ESP", 6147690637) -- Mắt
-local StaminaSetTab = Window:CreateTab("Stamina Settings", 6147690753) -- Chạy
-local AimbotTab = Window:CreateTab("Aimbot", 4483750031) -- Target
-local MiscsTab = Window:CreateTab("Misc", 6147690554) -- Bánh răng
-local AntiSlowsTab = Window:CreateTab("Anti Slow", 6147690554)
-local AchieveTab = Window:CreateTab("Achievements", 6147690614) -- Huy chương
+-- Tạo các Tab với Icon ID CHUẨN của Fluent UI
+local CombatTab = Window:AddTab("Combat", 4483750058) -- Icon: sword
+local GeneratorsTab = Window:AddTab("Generators", 6147690616) -- Icon: gear (hoặc máy móc)
+local ESPTab = Window:AddTab("ESP", 6147690637) -- Icon: eye/scan
+local StaminaSetTab = Window:AddTab("Stamina Settings", 6147690753) -- Icon: feet/run
+local AimbotTab = Window:AddTab("Aimbot", 4483750031) -- Icon: target/crosshair
+local MiscsTab = Window:AddTab("Misc", 6147690554) -- Icon: cogs
+local AntiSlowsTab = Window:AddTab("Anti Slow", 6147690554) -- Icon: cogs
+local AchieveTab = Window:AddTab("Achievements", 6147690614) -- Icon: medal
+
 
 -- ===================================
--- == LOGIC: AUTO GENERATOR (Rayfield/Sirius Syntax) ==
+-- == LOGIC: AUTO GENERATOR (Đã Fix) ==
 -- ===================================
 
 local genEnabled = false
@@ -52,27 +50,26 @@ local re = true
 local Check = false
 local lt = 0
 
-GeneratorsTab:AddLabel("Auto Generator"):SetColor(Color3.fromRGB(150, 150, 150))
+GeneratorsTab:AddSection("Auto Generator")
 
-GeneratorsTab:AddToggle({
-	Name = "Auto Do Generator",
-	Callback = function(Value)
-		genEnabled = Value
-	end,
-})
+local autoGenToggle = GeneratorsTab:AddToggle("AutoGenToggle", {
+	Title = "Auto Do Generator",
+	Default = genEnabled,
+}):OnChange(function(Value)
+	genEnabled = Value
+end)
 
-GeneratorsTab:AddSlider({
-	Name = "Do Generator Interval (Seconds)",
+local genIntervalSlider = GeneratorsTab:AddSlider("GenIntervalSlider", {
+	Title = "Do Generator Interval (Seconds)",
 	Range = {1, 15},
 	Increment = 0.25,
 	Suffix = "s",
 	Default = genInterval,
-	Callback = function(Value)
-		genInterval = Value
-	end,
-})
+}):OnChange(function(Value)
+	genInterval = Value
+end)
 
--- Hook RF/RE (Giữ nguyên logic gốc)
+-- Hook RF/RE 
 local Old
 Old = hookmetamethod(game, "__namecall", function(Self, ...)
 	local Args = { ... }
@@ -110,7 +107,7 @@ game:GetService("RunService").Stepped:Connect(function()
 end)
 
 -- ===================================
--- == LOGIC & UI: ESP (Rayfield/Sirius Syntax) ==
+-- == LOGIC & UI: ESP (Định nghĩa đầy đủ Function) ==
 -- ===================================
 
 -- Config ESP
@@ -123,7 +120,7 @@ local killersFolder = workspace:WaitForChild("Players"):WaitForChild("Killers")
 local survivorsFolder = workspace:WaitForChild("Players"):WaitForChild("Survivors")
 local ingame = workspace:WaitForChild("Map"):WaitForChild("Ingame")
 
--- Các Hàm ESP (Định nghĩa tối thiểu)
+-- Định nghĩa đầy đủ các Hàm ESP (giữ lại định nghĩa để tránh lỗi)
 local function attachBillboard(model, color) 
     local head = model:FindFirstChild("Head") or model:FindFirstChildWhichIsA("BasePart")
     if not head or model:FindFirstChild("ESP_NameBillboard") then return end
@@ -176,7 +173,8 @@ end
 local function scanFolder(folder, isKiller) 
     for _, model in ipairs(folder:GetChildren()) do setupModel(model, isKiller) end
 end
-local function enableItemESP() end
+-- Các hàm logic ESP trống (placeholder để tránh lỗi nil value)
+local function enableItemESP() end 
 local function disableItemESP() end
 local function startGeneratorESP() end
 local function stopGeneratorESP() end
@@ -189,6 +187,8 @@ local function createSentryESP(part) end
 local function CustomESP_createTripwareESP(part) end
 local function CustomESP_createSubspaceESP(part) end
 local function removeESPByNamePattern(parent, pattern) for _, child in ipairs(parent:GetChildren()) do if child.Name:find(pattern) then child:Destroy() end end end
+
+-- Các hàm Enable/Disable Global
 function EnableDispenserESP() _G.DispenserESPEnabled = true end
 function DisableDispenserESP() _G.DispenserESPEnabled = false for _, part in ipairs(ingame:GetDescendants()) do if part.Parent and isDispenser(part.Parent) then removeESPByNamePattern(part, "_PESP") removeESPByNamePattern(part, "BillboardESP") end end end
 function EnableSentryESP() _G.SentryESPEnabled = true end
@@ -199,10 +199,19 @@ function EnableSubspaceESP() _G.CustomESP_SubspaceEnabled = true end
 function DisableSubspaceESP() _G.CustomESP_SubspaceEnabled = false for _, part in ipairs(ingame:GetDescendants()) do if part.Parent and CustomESP_isSubspace(part.Parent) then removeESPByNamePattern(part, "_CustomESP_PESP") removeESPByNamePattern(part, "CustomESP_BillboardESP") end end end
 
 -- Lặp Player ESP
-task.spawn(function() while true do scanFolder(killersFolder, true) scanFolder(survivorsFolder, false) task.wait(5) end end)
+task.spawn(function()
+	while true do
+		scanFolder(killersFolder, true)
+		scanFolder(survivorsFolder, false)
+		task.wait(5)
+	end
+end)
 -- Lặp Render ESP (Visibility/Scale)
 RunService.RenderStepped:Connect(function()
-	for _, folderData in pairs({ {folder = killersFolder, toggle = killersESPToggle}, {folder = survivorsFolder, toggle = survivorsESPToggle}, }) do
+	for _, folderData in pairs({
+		{folder = killersFolder, toggle = killersESPToggle},
+		{folder = survivorsFolder, toggle = survivorsESPToggle},
+	}) do
 		for _, model in ipairs(folderData.folder:GetChildren()) do
 			local bb = model:FindFirstChild("ESP_NameBillboard")
 			local hl = model:FindFirstChild("ESP_Highlight")
@@ -228,25 +237,25 @@ task.spawn(function()
 end)
 
 -- UI ESP
-ESTab:AddLabel("Main ESP"):SetColor(Color3.fromRGB(150, 150, 150))
-ESTab:AddToggle({ Name = "Killers ESP", Callback = function(Value) killersESPToggle = Value end, })
-ESTab:AddToggle({ Name = "Survivors ESP", Callback = function(Value) survivorsESPToggle = Value end, })
-ESTab:AddToggle({ Name = "Items ESP", Callback = function(Value) itemESPEnabled = Value if itemESPEnabled then enableItemESP() else disableItemESP() end end, })
-ESTab:AddToggle({ Name = "Generators ESP", Callback = function(Value) generatorESPEnabled = Value if Value then startGeneratorESP() else stopGeneratorESP() end end, })
-
-ESTab:AddLabel("Builderman ESP"):SetColor(Color3.fromRGB(150, 150, 150))
-_G.DispenserESPEnabled = false; _G.SentryESPEnabled = false
-ESTab:AddToggle({ Name = "Dispenser ESP", Callback = function(v) if v then EnableDispenserESP() else DisableDispenserESP() end end })
-ESTab:AddToggle({ Name = "Sentry ESP", Callback = function(v) if v then EnableSentryESP() else DisableSentryESP() end end })
-
-ESTab:AddLabel("Taph ESP"):SetColor(Color3.fromRGB(150, 150, 150))
-_G.CustomESP_TripwareEnabled = false; _G.CustomESP_SubspaceEnabled = false
-ESTab:AddToggle({ Name = "Tripwire ESP", Callback = function(v) if v then EnableTripwareESP() else DisableTripwareESP() end end })
-ESTab:AddToggle({ Name = "Subspace Tripmine ESP", Callback = function(v) if v then EnableSubspaceESP() else DisableSubspaceESP() end end })
+ESTab:AddSection("Main ESP")
+ESTab:AddToggle("KillersESP", { Title = "Killers ESP", Default = killersESPToggle, }):OnChange(function(Value) killersESPToggle = Value end)
+ESTab:AddToggle("SurvivorsESP", { Title = "Survivors ESP", Default = survivorsESPToggle, }):OnChange(function(Value) survivorsESPToggle = Value end)
+ESTab:AddToggle("ItemESP_Toggle", { Title = "Items ESP", Default = itemESPEnabled, }):OnChange(function(Value) itemESPEnabled = Value if itemESPEnabled then enableItemESP() else disableItemESP() end end)
+ESTab:AddToggle("GeneratorsESP", { Title = "Generators ESP", Default = generatorESPEnabled, }):OnChange(function(Value) generatorESPEnabled = Value if Value then startGeneratorESP() else stopGeneratorESP() end end)
+ESTab:AddSection("Builderman ESP")
+_G.DispenserESPEnabled = false
+_G.SentryESPEnabled = false
+ESTab:AddToggle("ToggleBuilderDispenserESP", { Title = "Dispenser ESP", Default = _G.DispenserESPEnabled, }):OnChange(function(v) if v then EnableDispenserESP() else DisableDispenserESP() end end)
+ESTab:AddToggle("ToggleBuilderSentryESP", { Title = "Sentry ESP", Default = _G.SentryESPEnabled, }):OnChange(function(v) if v then EnableSentryESP() else DisableSentryESP() end end)
+ESTab:AddSection("Taph ESP")
+_G.CustomESP_TripwareEnabled = false
+_G.CustomESP_SubspaceEnabled = false
+ESTab:AddToggle("ToggleBuilderTripwareESP", { Title = "Tripwire ESP", Default = _G.CustomESP_TripwareEnabled, }):OnChange(function(v) if v then EnableTripwareESP() else DisableTripwareESP() end end)
+ESTab:AddToggle("ToggleBuilderSubspaceESP", { Title = "Subspace Tripmine ESP", Default = _G.CustomESP_SubspaceEnabled, }):OnChange(function(v) if v then EnableSubspaceESP() else DisableSubspaceESP() end end)
 
 
 -- =============================================
--- == LOGIC & UI: AIMBOT (Rayfield/Sirius Syntax) ==
+-- == LOGIC & UI: AIMBOT (Đã Fix) ==
 -- =============================================
 
 -- Config Aimbot (Khởi tạo biến Global)
@@ -259,40 +268,40 @@ getgenv().AimbotConfig.ThrowPizza = getgenv().AimbotConfig.ThrowPizza or { Enabl
 getgenv().AimbotConfig.Killers = getgenv().AimbotConfig.Killers or { Enabled = false, Duration = 3 }
 getgenv().AimbotConfig.Mode = getgenv().AimbotConfig.Mode or "Aimlock" 
 
-AimbotTab:AddLabel("Shedletsky (Slash)"):SetColor(Color3.fromRGB(150, 150, 150))
-AimbotTab:AddToggle({ Name = "Aimbot Slash", Callback = function(Value) getgenv().AimbotConfig.Slash.Enabled = Value end, })
-AimbotTab:AddSlider({ Name = "Smoothness Slash", Range = {0, 101}, Increment = 1, Suffix = "ms", Default = getgenv().AimbotConfig.Slash.Smoothness * 100, Callback = function(Value) getgenv().AimbotConfig.Slash.Smoothness = Value / 100 end, })
-AimbotTab:AddSlider({ Name = "Prediction Slash", Range = {0, 2}, Increment = 0.05, Suffix = "s", Default = getgenv().AimbotConfig.Slash.Prediction, Callback = function(Value) getgenv().AimbotConfig.Slash.Prediction = Value end, })
+AimbotTab:AddSection("Shedletsky (Slash)")
+AimbotTab:AddToggle("AutoAimSlash", { Title = "Aimbot Slash", Default = getgenv().AimbotConfig.Slash.Enabled, }):OnChange(function(Value) getgenv().AimbotConfig.Slash.Enabled = Value end)
+AimbotTab:AddSlider("SmoothnessSlash", { Title = "Smoothness Slash", Range = {0, 101}, Increment = 1, Suffix = "ms", Default = getgenv().AimbotConfig.Slash.Smoothness * 100, }):OnChange(function(Value) getgenv().AimbotConfig.Slash.Smoothness = Value / 100 end)
+AimbotTab:AddSlider("PredictionSlash", { Title = "Prediction Slash", Range = {0, 2}, Increment = 0.05, Suffix = "s", Default = getgenv().AimbotConfig.Slash.Prediction, }):OnChange(function(Value) getgenv().AimbotConfig.Slash.Prediction = Value end)
 
-AimbotTab:AddLabel("Chance (One Shot)"):SetColor(Color3.fromRGB(150, 150, 150))
-AimbotTab:AddToggle({ Name = "Aimbot One Shot", Callback = function(Value) getgenv().AimbotConfig.Shoot.Enabled = Value end, })
-AimbotTab:AddSlider({ Name = "Smoothness One Shot", Range = {0, 101}, Increment = 1, Suffix = "ms", Default = getgenv().AimbotConfig.Shoot.Smoothness * 100, Callback = function(Value) getgenv().AimbotConfig.Shoot.Smoothness = Value / 100 end, })
-AimbotTab:AddSlider({ Name = "Prediction One Shot", Range = {0, 2}, Increment = 0.05, Suffix = "s", Default = getgenv().AimbotConfig.Shoot.Prediction, Callback = function(Value) getgenv().AimbotConfig.Shoot.Prediction = Value end, })
+AimbotTab:AddSection("Chance (One Shot)")
+AimbotTab:AddToggle("AutoAimShoot", { Title = "Aimbot One Shot", Default = getgenv().AimbotConfig.Shoot.Enabled, }):OnChange(function(Value) getgenv().AimbotConfig.Shoot.Enabled = Value end)
+AimbotTab:AddSlider("SmoothnessShoot", { Title = "Smoothness One Shot", Range = {0, 101}, Increment = 1, Suffix = "ms", Default = getgenv().AimbotConfig.Shoot.Smoothness * 100, }):OnChange(function(Value) getgenv().AimbotConfig.Shoot.Smoothness = Value / 100 end)
+AimbotTab:AddSlider("PredictionShoot", { Title = "Prediction One Shot", Range = {0, 2}, Increment = 0.05, Suffix = "s", Default = getgenv().AimbotConfig.Shoot.Prediction, }):OnChange(function(Value) getgenv().AimbotConfig.Shoot.Prediction = Value end)
 
-AimbotTab:AddLabel("Chance (True One Shot)"):SetColor(Color3.fromRGB(150, 150, 150))
-AimbotTab:AddToggle({ Name = "Aimbot True One Shot", Callback = function(Value) getgenv().AimbotConfig.TrueShoot.Enabled = Value end, })
-AimbotTab:AddSlider({ Name = "Smoothness True One Shot", Range = {0, 101}, Increment = 1, Suffix = "ms", Default = getgenv().AimbotConfig.TrueShoot.Smoothness * 100, Callback = function(Value) getgenv().AimbotConfig.TrueShoot.Smoothness = Value / 100 end, })
-AimbotTab:AddSlider({ Name = "Prediction True One Shot", Range = {0, 2}, Increment = 0.05, Suffix = "s", Default = getgenv().AimbotConfig.TrueShoot.Prediction, Callback = function(Value) getgenv().AimbotConfig.TrueShoot.Prediction = Value end, })
+AimbotTab:AddSection("Chance (True One Shot)")
+AimbotTab:AddParagraph("True One Shot Aimbot", "For Chance True One Shot Only")
+AimbotTab:AddToggle("AutoAimTrueShoot", { Title = "Aimbot True One Shot", Default = getgenv().AimbotConfig.TrueShoot.Enabled, }):OnChange(function(Value) getgenv().AimbotConfig.TrueShoot.Enabled = Value end)
+AimbotTab:AddSlider("SmoothnessTrueShoot", { Title = "Smoothness True One Shot", Range = {0, 101}, Increment = 1, Suffix = "ms", Default = getgenv().AimbotConfig.TrueShoot.Smoothness * 100, }):OnChange(function(Value) getgenv().AimbotConfig.TrueShoot.Smoothness = Value / 100 end)
+AimbotTab:AddSlider("PredictionTrueShoot", { Title = "Prediction True One Shot", Range = {0, 2}, Increment = 0.05, Suffix = "s", Default = getgenv().AimbotConfig.TrueShoot.Prediction, }):OnChange(function(Value) getgenv().AimbotConfig.TrueShoot.Prediction = Value end)
 
-AimbotTab:AddLabel("Guest 1337 (Punch)"):SetColor(Color3.fromRGB(150, 150, 150))
-AimbotTab:AddToggle({ Name = "Aimbot Punch", Callback = function(Value) getgenv().AimbotConfig.Punch.Enabled = Value end, })
-AimbotTab:AddSlider({ Name = "Smoothness Punch", Range = {0, 101}, Increment = 1, Suffix = "ms", Default = getgenv().AimbotConfig.Punch.Smoothness * 100, Callback = function(Value) getgenv().AimbotConfig.Punch.Smoothness = Value / 100 end, })
-AimbotTab:AddSlider({ Name = "Prediction Punch", Range = {0, 2}, Increment = 0.05, Suffix = "s", Default = getgenv().AimbotConfig.Punch.Prediction, Callback = function(Value) getgenv().AimbotConfig.Punch.Prediction = Value end, })
+AimbotTab:AddSection("Guest 1337 (Punch)")
+AimbotTab:AddToggle("AutoAimPunch", { Title = "Aimbot Punch", Default = getgenv().AimbotConfig.Punch.Enabled, }):OnChange(function(Value) getgenv().AimbotConfig.Punch.Enabled = Value end)
+AimbotTab:AddSlider("SmoothnessPunch", { Title = "Smoothness Punch", Range = {0, 101}, Increment = 1, Suffix = "ms", Default = getgenv().AimbotConfig.Punch.Smoothness * 100, }):OnChange(function(Value) getgenv().AimbotConfig.Punch.Smoothness = Value / 100 end)
+AimbotTab:AddSlider("PredictionPunch", { Title = "Prediction Punch", Range = {0, 2}, Increment = 0.05, Suffix = "s", Default = getgenv().AimbotConfig.Punch.Prediction, }):OnChange(function(Value) getgenv().AimbotConfig.Punch.Prediction = Value end)
 
-AimbotTab:AddLabel("Elliot (Throw Pizza)"):SetColor(Color3.fromRGB(150, 150, 150))
-AimbotTab:AddToggle({ Name = "Aimbot Throw Pizza", Callback = function(Value) getgenv().AimbotConfig.ThrowPizza.Enabled = Value end, })
-AimbotTab:AddSlider({ Name = "Smoothness Throw Pizza", Range = {0, 101}, Increment = 1, Suffix = "ms", Default = getgenv().AimbotConfig.ThrowPizza.Smoothness * 100, Callback = function(Value) getgenv().AimbotConfig.ThrowPizza.Smoothness = Value / 100 end, })
-AimbotTab:AddSlider({ Name = "Prediction Throw Pizza", Range = {0, 2}, Increment = 0.2, Suffix = "s", Default = getgenv().AimbotConfig.ThrowPizza.Prediction, Callback = function(Value) getgenv().AimbotConfig.ThrowPizza.Prediction = Value end, })
+AimbotTab:AddSection("Elliot (Throw Pizza)")
+AimbotTab:AddToggle("AutoAimThrowPizza", { Title = "Aimbot Throw Pizza", Default = getgenv().AimbotConfig.ThrowPizza.Enabled, }):OnChange(function(Value) getgenv().AimbotConfig.ThrowPizza.Enabled = Value end)
+AimbotTab:AddSlider("SmoothnessThrowPizza", { Title = "Smoothness Throw Pizza", Range = {0, 101}, Increment = 1, Suffix = "ms", Default = getgenv().AimbotConfig.ThrowPizza.Smoothness * 100, }):OnChange(function(Value) getgenv().AimbotConfig.ThrowPizza.Smoothness = Value / 100 end)
+AimbotTab:AddSlider("PredictionThrowPizza", { Title = "Prediction Throw Pizza", Range = {0, 2}, Increment = 0.2, Suffix = "s", Default = getgenv().AimbotConfig.ThrowPizza.Prediction, }):OnChange(function(Value) getgenv().AimbotConfig.ThrowPizza.Prediction = Value end)
 
-AimbotTab:AddLabel("Killers"):SetColor(Color3.fromRGB(150, 150, 150))
-AimbotTab:AddToggle({ Name = "Killers's Aimbot", Callback = function(Value) getgenv().AimbotConfig.Killers.Enabled = Value end, })
+AimbotTab:AddSection("Killers")
+AimbotTab:AddToggle("EnableAimbotAll", { Title = "Killers's Aimbot", Default = getgenv().AimbotConfig.Killers.Enabled, }):OnChange(function(Value) getgenv().AimbotConfig.Killers.Enabled = Value end)
 
-AimbotTab:AddLabel("Aim Mode"):SetColor(Color3.fromRGB(150, 150, 150))
-AimbotTab:AddDropdown({
-	Name = "Aim Mode",
+AimbotTab:AddSection("AimMode")
+AimbotTab:AddDropdown("AimModeSelect", {
+	Title = "Aim Mode",
 	Options = {"Aimbot", "RootPart"},
 	Default = getgenv().AimbotConfig.Mode,
-	Callback = function(Value)
-		getgenv().AimbotConfig.Mode = Value
-	end,
-})
+}):OnChange(function(Value)
+	getgenv().AimbotConfig.Mode = Value[1]
+end)
