@@ -29,7 +29,7 @@ local Window = Fluent:CreateWindow({
    MinimizeKey = Enum.KeyCode.End -- Dùng End để ẩn/hiện GUI
 })
 
--- Tạo các Tab với Icon ID CHUẨN của Fluent UI (ĐÃ FIX LỖI CÚ PHÁP)
+-- Tạo các Tab với Icon ID CHUẨN của Fluent UI
 local CombatTab = Window:AddTab("Combat", 4483750058) -- Icon: sword
 local GeneratorsTab = Window:AddTab("Generators", 6147690616) -- Icon: gear (hoặc máy móc)
 local ESPTab = Window:AddTab("ESP", 6147690637) -- Icon: eye/scan
@@ -120,7 +120,7 @@ local killersFolder = workspace:WaitForChild("Players"):WaitForChild("Killers")
 local survivorsFolder = workspace:WaitForChild("Players"):WaitForChild("Survivors")
 local ingame = workspace:WaitForChild("Map"):WaitForChild("Ingame")
 
--- Các Hàm ESP (Tối thiểu cần thiết để UI không lỗi)
+-- Các Hàm ESP (Định nghĩa đầy đủ hơn để tránh lỗi)
 local function attachBillboard(model, color) 
     local head = model:FindFirstChild("Head") or model:FindFirstChildWhichIsA("BasePart")
     if not head or model:FindFirstChild("ESP_NameBillboard") then return end
@@ -297,4 +297,12 @@ AimbotTab:AddSection("Killers")
 AimbotTab:AddToggle("EnableAimbotAll", { Title = "Killers's Aimbot", Default = getgenv().AimbotConfig.Killers.Enabled, }):OnChange(function(Value) getgenv().AimbotConfig.Killers.Enabled = Value end)
 
 AimbotTab:AddSection("AimMode")
-AimbotTab:AddDropdown("AimModeSelect", { Title = "Aim Mode", Options = {"Aimbot", "RootPart"}, Default = getgenv().AimbotConfig.Mode, }):OnChange(function(Value) getgenv().AimbotConfig.Mode = Value[1] end)
+AimbotTab:AddDropdown("AimModeSelect", {
+	Title = "Aim Mode",
+	Options = {"Aimbot", "RootPart"},
+	Default = getgenv().AimbotConfig.Mode,
+}):OnChange(function(Value)
+	getgenv().AimbotConfig.Mode = Value[1]
+end)
+
+-- *** KẾT THÚC SCRIPT ***
